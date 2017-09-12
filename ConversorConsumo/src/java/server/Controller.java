@@ -7,7 +7,9 @@ package server;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -17,7 +19,8 @@ import model.CalculadoraConsumo;
  *
  * @author Alexandre.Torres
  */
-public class Calcular extends HttpServlet {
+@WebServlet(name = "Controller", urlPatterns = {"/Controller"})
+public class Controller extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -33,13 +36,15 @@ public class Calcular extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
             /* TODO output your page here. You may use following sample code. */
-       
-            CalculadoraConsumo calc = 
-                    new CalculadoraConsumo(request.getParameter("tempo"),
-                            request.getParameter("distancia"), 
-                            request.getParameter("consumo"));
-              
-     
+            out.println("<!DOCTYPE html>");
+            out.println("<html>");
+            out.println("<head>");
+            out.println("<title>Servlet Controller</title>");            
+            out.println("</head>");
+            out.println("<body>");
+            out.println("<h1>Servlet Controller at " + request.getContextPath() + "</h1>");
+            out.println("</body>");
+            out.println("</html>");
         }
     }
 
@@ -55,7 +60,15 @@ public class Calcular extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        
+        String acao = request.getParameter("acao");
+        
+        switch (acao){
+            case "consumo":
+                RequestDispatcher destino = request.getRequestDispatcher("Consumo.jsp");
+                destino.forward(request, response);
+        }
+        
     }
 
     /**
@@ -69,7 +82,17 @@ public class Calcular extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+         
+        CalculadoraConsumo calc = 
+                new CalculadoraConsumo(request.getParameter("tempo"),
+                        request.getParameter("distancia"), 
+                        request.getParameter("consumo"));
+        
+        request.setAttribute("cm", calc.getCm());
+        request.setAttribute("vm", calc.getVm());
+        
+        RequestDispatcher destino = request.getRequestDispatcher("Resultado.jsp");
+        destino.forward(request, response);
     }
 
     /**
